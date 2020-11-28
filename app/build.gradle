@@ -128,6 +128,8 @@ android {
 
 Properties props = new Properties()
 def propFile = new File('signing.properties')
+boolean signConfigExists = project.hasProperty("keystoreFile") && project.hasProperty("keystorePassword") && project.hasProperty("keystoreAlias") && project.hasProperty("keystoreAliasPassword")
+
 if (propFile.canRead()) {
     props.load(new FileInputStream(propFile))
 
@@ -141,6 +143,11 @@ if (propFile.canRead()) {
         println 'signing.properties found but some entries are missing'
         android.buildTypes.release.signingConfig = null
     }
+} else if (signConfigExists) {
+    android.signingConfigs.release.storeFile = file(project.property("keystoreFile"))
+    android.signingConfigs.release.storePassword = project.property("keystorePassword")
+    android.signingConfigs.release.keyAlias = project.property("keystoreAlias")
+    android.signingConfigs.release.keyPassword = project.property("keystoreAliasPassword")
 } else {
     println 'signing.properties not found'
     android.buildTypes.release.signingConfig = null
